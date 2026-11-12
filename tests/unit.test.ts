@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { createClinicService } from "../lib/clinic";
 import { bookSchema, actionSchema, doctorSearchSchema, isoDate, slotSearchSchema } from "../lib/schemas";
 import { signConfirmation, readConfirmation } from "../lib/confirmation";
-import { isFutureSlot } from "../lib/dates";
+import { isFutureSlot, todayInIndia, formatClinicDay, formatClinicMonth } from "../lib/dates";
 import { hashPasscode, isValidSession } from "../lib/auth";
 import { requireSession } from "../lib/http";
 import { requireEnv, getGeminiModel } from "../lib/env";
@@ -13,11 +13,20 @@ import { createClinicTools } from "../lib/agent/tools";
 import { defineTool, toFunctionDeclarations } from "../lib/agent/defineTool";
 import { z } from "zod";
 import type { Appointment, Department, Doctor, Slot } from "../lib/clinic-types";
-import { ClinicError } from "../lib/errors";
+import { ClinicError, publicGeminiError } from "../lib/errors";
 import { GET as appointmentsGET } from "../app/api/appointments/route";
 import { GET as doctorsGET } from "../app/api/doctors/route";
 
 process.env.APP_PASSCODE = "isolated-unit-test-passcode-not-a-real-credential";
+test("Gemini errors preserve actionable status without exposing provider bodies", () => {
+  for (const status of [400, 401, 403, 404, 429, 503, 504]) {
+    const result = publicGeminiError({ status, message: "private-provider-body-must-not-be-returned" });
+    assert.ok(!result.error.includes("private-provider-body"));
+    assert.match(result.error, new RegExp(String(status)));
+    assert.equal(result.status, status === 429 || status === 503 || status === 504 ? status : 503);
+  }
+  assert.equal(publicGeminiError(new ClinicError("Please sign in.", 401)).status, 401);
+});
 const dep: Department = { id: "D02", name: "Dermatology", common_issues: "skin rash, acne" };
 const doctors: Doctor[] = [
   { id: "DR03", name: "Dr. Nisha Menon", department_id: "D02", qualification: "MBBS, MD", experience_years: 12, consultation_fee: 700, languages: ["English", "Tamil"], room: "1-03", department: dep },
@@ -74,6 +83,17 @@ test("clinic timezone handles elapsed times on the same date", () => {
   const now = new Date("2026-11-12T04:30:00Z").getTime();
   assert.equal(isFutureSlot({ slot_date: "2026-11-12", start_time: "09:30:00" }, now), false);
   assert.equal(isFutureSlot({ slot_date: "2026-11-12", start_time: "10:30:00" }, now), true);
+});
+test("clinic calendar date is stable across host timezones and Indian midnight", () => {
+  const original = process.env.TZ;
+  try {
+    for (const zone of ["Pacific/Honolulu", "Asia/Kolkata", "Pacific/Kiritimati"]) {
+      process.env.TZ = zone;
+      assert.equal(formatClinicDay("2026-11-13"), 13); assert.equal(formatClinicMonth("2026-11-13"), "Nov");
+      assert.equal(todayInIndia(new Date("2026-11-12T18:29:59Z")), "2026-11-12");
+      assert.equal(todayInIndia(new Date("2026-11-12T18:30:00Z")), "2026-11-13");
+    }
+  } finally { if (original === undefined) delete process.env.TZ; else process.env.TZ = original; }
 });
 test("Zod rejects invalid IDs, invented patient args and impossible calendar dates", () => {
   for (const value of [-1, 0, 1.5, Number.MAX_SAFE_INTEGER + 1, "1"]) assert.equal(bookSchema.safeParse({ slot_id: value }).success, false);

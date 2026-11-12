@@ -67,6 +67,6 @@ Paths below are relative to the inner project root.
 
 ## Preserved
 
-The official PS3 seed and other official seeds, existing Supabase client, Gemini client, defineTool utility, tool types, passcode auth/login/logout implementation, TypeScript and Tailwind setup remain in place. No replacement framework, ORM or runtime LLM was introduced.
+The official PS3 seed and other official seeds, Supabase client, Gemini client, defineTool utility, passcode auth/login/logout, TypeScript and Tailwind setup remain in place. The finalization attachment explicitly authorized an optional OpenRouter adapter using the same six tools and agent loop. AI_PROVIDER selects the provider; no automatic model/provider fallback occurs. The official Gemini requirement and pending trainer approval are documented.
 
-Generated dependency/build/type files and ignored browser-test output are not source deliverables. A local .git directory was initialized; no remote or commit was created.
+Generated dependency/build/type files and ignored browser-test output are not source deliverables. The intended public remote is Suryansh2512/CareSlot, branch main; the owner authorized finalization commits and push. The original no-remote statement is historical.

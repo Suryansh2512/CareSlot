@@ -16,3 +16,12 @@ export function requireEnv(name: string): string {
 
 // Read lazily so builds do not need runtime secrets. Never silently change models.
 export function getGeminiModel(): string { return requireEnv("GEMINI_MODEL"); }
+
+export function getAIProvider(): "gemini" | "openrouter" {
+  const provider = process.env.AI_PROVIDER?.trim() || "gemini";
+  if (provider !== "gemini" && provider !== "openrouter") throw new Error("AI_PROVIDER must be gemini or openrouter.");
+  return provider;
+}
+export function getAIModel(): string {
+  return requireEnv(getAIProvider() === "openrouter" ? "OPENROUTER_MODEL" : "GEMINI_MODEL");
+}

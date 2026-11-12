@@ -1,49 +1,51 @@
-# CareSlot - five-slide presentation content
+# CareSlot: five-slide presentation content
 
-Use real screenshots after live credentials are configured. Replace placeholders with verified facts. Do not present browser test fixtures as a live demonstration.
+Exactly five slides, following H12 in the official handbook. The PPTX authoring runtime is unavailable on this host, so this is complete paste-ready content with actual screenshots. Export the assembled deck as PDF or share a view-only Google Slides link, as the official submission requires. Team number/member roles were requested from the owner and have not been supplied; add those verified identities before submitting.
 
-## Slide 1 - CareSlot
+## Slide 1: CareSlot
 
-- Clinic Appointment Agent - PS3
-- Care, without the wait
-- SRM Agentic AI Hackathon - Team <number>
-- <members and their roles>
-- Demo patient: Arjun Mehta, P001
+- PS3 Clinic Appointment Agent
+- SRM Agentic AI Hackathon, November 2026
+- A patient workspace for Arjun Mehta, demo patient P001
+- Team number and members: awaiting owner details
 
-## Slide 2 - The problem
+## Slide 2: The problem
 
-- Patients call the front desk to book, move or cancel a visit.
-- Busy phone lines create unnecessary waiting.
-- Patients need the right department, language and appointment time.
-- Official fictional data: 8 departments and 15 doctors.
-- Goal: make routine appointment management self-service.
+- Patients call a busy front desk to book or change a visit.
+- They need a suitable department, doctor and available time.
+- The official fictional clinic has 8 departments and 15 doctors.
+- CareSlot brings appointment management into one patient workspace.
 
-## Slide 3 - Our solution and demo
+## Slide 3: Our solution and demo
 
-- Booking Chat, Doctors and My Appointments.
-- Ask: "I have a skin rash, book me with a doctor on Friday morning."
-- Gemini searches real doctors and available slots.
-- The patient reviews and confirms before any write.
-- Insert two REAL screenshots: tool trace and persisted appointment.
+Place these two real screenshots side by side:
 
-Speaker demo: confirm a booking, show the receipt, reload My Appointments, then reschedule and cancel.
+![Actual model-selected tools and signed booking proposal](screenshots/agent-tools.png)
+![Actual appointment persisted in Supabase and shown after navigation](screenshots/appointment.png)
 
-## Slide 4 - How the agent works
+- Booking Chat, Doctors and My Appointments
+- Verified prompt: "Which Tamil-speaking doctors are available tomorrow?"
+- The patient reviews the selected doctor and time before confirming.
+- A real appointment ID and a refreshed appointment list show the result.
 
-- Patient -> protected API -> Gemini selects tools -> Zod -> Supabase.
-- Read: searchDoctors, getAvailableSlots, getMyAppointments.
-- Write: bookAppointment, rescheduleAppointment, cancelAppointment.
-- PostgreSQL locks and transactions enforce occupancy, ownership and rollback.
-- Next.js, TypeScript, Tailwind, Supabase, Gemini, Zod and Vercel.
+Presenter note: the screenshots show an isolated live verification appointment. The test cleaned it up afterward and preserved every existing clinic record. For the current demo, choose a currently returned free slot rather than reusing the date from the screenshot.
 
-Explain that a signed confirmation approves one exact action. Gemini does not connect directly to the database. The assistant never diagnoses or recommends medicine.
+## Slide 4: How the agent works
 
-## Slide 5 - Results and links
+- The protected API sends the request and tools to the selected model.
+- Reads: searchDoctors, getAvailableSlots, getMyAppointments
+- Writes: bookAppointment, rescheduleAppointment, cancelAppointment
+- Zod, signed confirmation and PostgreSQL transactions enforce P001 ownership and safe slot changes.
+- Next.js, TypeScript, Tailwind, Supabase and Gemini support remain. The verified live variation uses OpenRouter; trainer approval is pending.
 
-- Implemented: three pages, six tools, explicit confirmations and atomic writes.
-- Local validation: 38 tests and 8 browser tests passed; build and TypeScript passed; 2 live Gemini checks await credentials.
-- Live integration: <verified result after real Gemini/Supabase acceptance>.
-- GitHub: <confirmed repository>; Vercel: <verified deployed URL>.
-- Next: authenticated multi-patient accounts and a doctor-day view.
+Presenter note: the native tool_calls and matching tool_call_id results travel through the same bounded agent loop. No keyword routing simulates tool selection. Keys stay on the server. The assistant refuses diagnosis and medicine advice.
 
-Before presenting, show an occupied-slot refusal and a medical-advice refusal. Describe only tests that actually ran. Keep API keys, passwords and the Supabase dashboard out of screenshots.
+## Slide 5: Results and links
+
+- Live: all six tools, confirmed booking/rescheduling/cancellation, medicine refusal and ambiguity clarification passed.
+- Validation: 45 automated tests and 14 browser tests passed. Production build and TypeScript passed.
+- GitHub: https://github.com/Suryansh2512/CareSlot
+- Vercel: not deployed yet; account authentication and project linking are required.
+- Next: trainer provider approval, a verified deployment and completed team attribution.
+
+Presenter note: the standard automated run skipped two opt-in live tests; separate actual OpenRouter browser acceptance tested those safety behaviours. Gemini's earlier generation checks returned overload/timeouts, so do not claim a passing live Gemini workflow. No official milestone score increase has been verified.

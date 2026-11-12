@@ -43,8 +43,8 @@ for (const width of [360, 1440]) {
     await page.goto("/doctors"); await page.getByRole("button", { name: "View available slots" }).click();
     await expect(page.getByRole("button", { name: /10:00/ })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    await page.screenshot({ path: `test-results/doctors-${width}.png`, fullPage: true });
-    await page.goto("/"); await page.screenshot({ path: `test-results/booking-${width}.png`, fullPage: true });
+    await page.screenshot({ path: `test-results/doctors-${width}.png`, fullPage: true, caret: "initial" });
+    await page.goto("/"); await page.screenshot({ path: `test-results/booking-${width}.png`, fullPage: true, caret: "initial" });
   });
 }
 test("direct booking requires explicit confirmation and displays a returned receipt", async ({ page }) => {

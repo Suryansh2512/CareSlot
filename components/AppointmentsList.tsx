@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { Appointment, Doctor } from "@/lib/clinic-types";
-import { formatClinicDate, formatClinicTime, isFutureSlot } from "@/lib/dates";
+import { formatClinicDate, formatClinicTime, formatClinicDay, formatClinicMonth, isFutureSlot } from "@/lib/dates";
 import { Icon } from "./Icons";
 import { useClinicData } from "./useClinicData";
 import { useClinicAction, ActionFeedback } from "./useClinicAction";
@@ -26,7 +26,7 @@ export default function AppointmentsList({ compact = false, refreshKey = 0 }: { 
     {error && <div className="notice error" role="alert">{error}<button className="text-button" onClick={refresh}>Try again</button></div>}
     {!loading && !error && !visible.length && <div className="empty-state"><Icon name="calendar" size={30} /><h3>{compact || tab === "upcoming" ? "Your next visit starts here" : "No appointments here"}</h3><p>{compact || tab === "upcoming" ? "Find a doctor or ask CareSlot to help you book." : "Appointments in this category will appear here."}</p><Link href="/doctors" className="text-link">Explore doctors <Icon name="arrow" size={15} /></Link></div>}
     <div className="appointment-list">{visible.map(a => <article key={a.id} className={compact ? "appointment-card compact" : "appointment-card"}>
-      <div className="appointment-date"><strong>{new Date(a.slot.slot_date + "T12:00:00+05:30").getDate()}</strong><span>{new Intl.DateTimeFormat("en-IN", { month: "short", timeZone: "Asia/Kolkata" }).format(new Date(a.slot.slot_date + "T12:00:00+05:30"))}</span></div>
+      <div className="appointment-date"><strong>{formatClinicDay(a.slot.slot_date)}</strong><span>{formatClinicMonth(a.slot.slot_date)}</span></div>
       <div className="appointment-body"><div className="appointment-title"><h3>{a.doctor.name}</h3><span className={a.status === "booked" ? "badge teal" : "badge neutral"}>{a.status === "booked" && !isFutureSlot(a.slot) ? "Past visit" : a.status}</span></div><p>{a.doctor.department.name} · Room {a.doctor.room}</p><p className="appointment-time"><Icon name="clock" size={15} />{compact ? formatClinicTime(a.slot.start_time) : `${formatClinicDate(a.slot.slot_date)} · ${formatClinicTime(a.slot.start_time)}`} IST</p><p className="small muted">Appointment #{a.id}</p>{!compact && a.reason && <p className="reason-text">{a.reason}</p>}
       {!compact && a.status === "booked" && <div className="button-row"><button className="button secondary" disabled={action.busy} aria-expanded={moving === a.id} onClick={() => setMoving(moving === a.id ? undefined : a.id)}>{moving === a.id ? "Close times" : "Reschedule"}</button><button className="button subtle-danger" disabled={action.busy} onClick={() => action.prepare({ kind: "cancel", appointment_id: a.id })}>Cancel appointment</button></div>}
       {!compact && moving === a.id && <ReschedulePicker appointment={a} disabled={action.busy} onSelect={id => action.prepare({ kind: "reschedule", appointment_id: a.id, slot_id: id })} />}

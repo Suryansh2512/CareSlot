@@ -5,6 +5,8 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { randomBytes } from "node:crypto";
 import { createServer } from "node:net";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import EmbeddedPostgres from "embedded-postgres";
 import type { Client } from "pg";
 
@@ -23,7 +25,15 @@ before(async () => {
   await db.query("grant usage on schema public to service_role; grant all on all tables in schema public to service_role; grant usage, select on all sequences in schema public to service_role;");
 }, { timeout: 90_000 });
 after(async () => {
-  await db?.end(); await cluster?.stop();
+  await db?.end();
+  if (cluster && process.platform === "win32") {
+    // embedded-postgres uses taskkill /f on Windows. PostgreSQL 18 I/O workers
+    // can outlive that kill and keep the test runner's inherited pipes open.
+    // Stop only this temporary cluster gracefully through its data directory.
+    const platformPackage = "@embedded-postgres/windows-x64";
+    const { pg_ctl } = await import(platformPackage);
+    await promisify(execFile)(pg_ctl, ["-D", path.join(root, "data"), "-m", "fast", "-w", "stop"], { timeout: 20_000 });
+  } else await cluster?.stop();
   if (root && path.dirname(root) === path.resolve(tmpdir()) && path.basename(root).startsWith("careslot-db-")) await rm(root, { recursive: true, force: true });
 });
 async function slot(booked = false, past = false, doctor = "DR03") {

@@ -9,6 +9,7 @@ export type AgentStep = {
 };
 
 export type AgentResult = {
+  provider?: { name: "gemini" | "openrouter"; model: string };
   reply: string;
   steps: AgentStep[];
 };

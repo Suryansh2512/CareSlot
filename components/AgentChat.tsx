@@ -18,12 +18,12 @@ function pendingResult(step: AgentStep): Confirmation | undefined {
   return step.ok && r?.requires_confirmation ? r : undefined;
 }
 function ToolSteps({ steps }: { steps: AgentStep[] }) {
-  return <div className="tool-steps" aria-label="Gemini tool calls">{steps.map((s, i) => {
+  return <div className="tool-steps" aria-label="Agent tool calls">{steps.map((s, i) => {
     const pending = pendingResult(s), result = pending ? { ...pending, token: "[confirmation token hidden]" } : s.result;
     return <details key={i}><summary><span className={s.ok ? "tool-ok" : "tool-failed"}>{pending ? "Review" : s.ok ? "Done" : "Failed"}</span><span className="tool-name">{s.tool}</span><span className="tool-type">{s.writes ? "WRITE" : "READ"}</span></summary><pre>{JSON.stringify({ args: s.args, ...(s.ok ? { result } : { error: s.error }) }, null, 2)}</pre></details>;
   })}</div>;
 }
-export default function AgentChat({ onDataChanged }: { onDataChanged?: () => void }) {
+export default function AgentChat({ onDataChanged, provider = "gemini" }: { onDataChanged?: () => void; provider?: "gemini" | "openrouter" }) {
   const [messages, setMessages] = useState<Message[]>([]), [input, setInput] = useState("");
   const [loading, setLoading] = useState(false), [error, setError] = useState(""), [handled, setHandled] = useState<string[]>([]);
   const bottom = useRef<HTMLDivElement>(null), inFlight = useRef(false);
@@ -48,7 +48,7 @@ export default function AgentChat({ onDataChanged }: { onDataChanged?: () => voi
     finally { setLoading(false); inFlight.current = false; }
   }
   return <section className="chat-panel panel" aria-label="Booking chat">
-    <div className="chat-header"><span className="assistant-icon"><Icon name="plus" size={23} /></span><div><h2>Your CareSlot assistant</h2><p><span className="status-dot" />Powered by Gemini · Real clinic availability</p></div><span className="badge neutral">AI ASSISTANT</span></div>
+    <div className="chat-header"><span className="assistant-icon"><Icon name="plus" size={23} /></span><div><h2>Your CareSlot assistant</h2><p><span className="status-dot" />Powered by {provider === "openrouter" ? "OpenRouter" : "Gemini"} · Real clinic availability</p></div><span className="badge neutral">AI ASSISTANT</span></div>
     <div className="chat-scroll" role="log" aria-live="polite" aria-relevant="additions">
       {!messages.length && <div className="chat-welcome"><span className="welcome-symbol"><Icon name="chat" size={30} /></span><span className="eyebrow">A LITTLE HELP, A LOT LESS WAITING</span><h2>How can I help you today?</h2><p>Find a doctor, book your next visit, or make a change.<br />Just tell me what you need.</p><div className="suggested-prompts">{prompts.map(p => <button type="button" key={p.title} onClick={() => send(p.text)}><Icon name={p.icon} size={20} /><span><strong>{p.title}</strong><small>{p.text}</small></span><Icon name="arrow" size={17} /></button>)}</div></div>}
       {messages.map((m, i) => <div className={m.role === "user" ? "message user-message" : "message assistant-message"} key={i}>

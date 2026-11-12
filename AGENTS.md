@@ -1,6 +1,6 @@
 # CareSlot - PS3 Clinic Appointment Agent
 - Keep Next.js App Router, React, TypeScript, Tailwind, Zod, Supabase JS and Gemini function calling.
-- Runtime LLM: Gemini using the explicitly configured GEMINI_MODEL; never substitute models.
+- Runtime LLM: explicitly selected AI_PROVIDER=gemini or openrouter. Preserve Gemini using GEMINI_MODEL. OpenRouter uses a verified free OPENROUTER_MODEL with zero-price routing caps. Never silently substitute providers/models. Faculty approval for the provider variation is not established.
 - Development assistant: GPT-6.1 Sol High as requested; do not delegate to other models.
 - Server-only fixed demo identity: CURRENT_USER_ID = P001 (Arjun Mehta), in lib/currentUser.ts.
 - Never accept a patient ID from the browser or an agent tool argument.
@@ -16,7 +16,7 @@
 - A slot has at most one non-cancelled appointment; cancellation releases it only once.
 - Failed rescheduling must preserve the original appointment and slot.
 - Tools in lib/agent/tools.ts use defineTool and Zod; descriptions start with "Use this when...".
-- Gemini chooses tools; never route user keywords to tool names in application code.
+- The configured model chooses tools; never route user keywords to tool names in application code.
 - Require a signed confirmation of specific details before writes from chat or buttons.
 - Never diagnose or recommend medicine; only suggest departments and manage bookings.
 - Secrets stay server-side and in ignored environment files; never print them.

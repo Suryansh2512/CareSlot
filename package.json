@@ -2,16 +2,19 @@
   "name": "careslot",
   "version": "1.0.0",
   "private": true,
+  "engines": { "node": "24.x" },
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --hostname 127.0.0.1 --port 3300",
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit --incremental false",
-    "test": "tsx --conditions=react-server --test --test-concurrency=1 tests/unit.test.ts tests/database.test.ts tests/live.test.ts",
+    "test": "tsx --conditions=react-server --test --test-concurrency=1 tests/unit.test.ts tests/openrouter.test.ts tests/database.test.ts tests/live.test.ts",
     "test:db": "tsx --test tests/database.test.ts",
     "test:e2e": "playwright test",
     "test:live": "tsx --conditions=react-server --test tests/live.test.ts",
-    "check:secrets": "node scripts/check-client-secrets.mjs"
+    "check:secrets": "node scripts/check-client-secrets.mjs",
+    "verify:live": "node --env-file=.env.local scripts/verify-live.mjs",
+    "verify:browser": "node --env-file=.env.local scripts/verify-live-browser.mjs"
   },
   "dependencies": {
     "@google/genai": "^3.0.0",
