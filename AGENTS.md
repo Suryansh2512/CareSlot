@@ -1,0 +1,25 @@
+# CareSlot - PS3 Clinic Appointment Agent
+- Keep Next.js App Router, React, TypeScript, Tailwind, Zod, Supabase JS and Gemini function calling.
+- Runtime LLM: Gemini using the explicitly configured GEMINI_MODEL; never substitute models.
+- Development assistant: GPT-6.1 Sol High as requested; do not delegate to other models.
+- Server-only fixed demo identity: CURRENT_USER_ID = P001 (Arjun Mehta), in lib/currentUser.ts.
+- Never accept a patient ID from the browser or an agent tool argument.
+- departments: id, name, common_issues.
+- doctors: id, name, department_id, qualification, experience_years, consultation_fee, languages, room.
+- slots: id, doctor_id, slot_date, start_time, is_booked.
+- patients: id, name, phone, age, city.
+- appointments: id, patient_id, doctor_id, slot_id, reason, status, created_at.
+- Appointment statuses: booked, cancelled, completed. Clinic timezone: Asia/Kolkata.
+- Never alter the official PS3 seed. Apply seed/ps3_atomic_operations.sql afterward.
+- Write only through transactional RPCs; preserve seeded booked slots without appointment rows.
+- Lock appointment first, then slots ordered by ID. Check ownership inside SQL.
+- A slot has at most one non-cancelled appointment; cancellation releases it only once.
+- Failed rescheduling must preserve the original appointment and slot.
+- Tools in lib/agent/tools.ts use defineTool and Zod; descriptions start with "Use this when...".
+- Gemini chooses tools; never route user keywords to tool names in application code.
+- Require a signed confirmation of specific details before writes from chat or buttons.
+- Never diagnose or recommend medicine; only suggest departments and manage bookings.
+- Secrets stay server-side and in ignored environment files; never print them.
+- Run npm test, npm run typecheck, npm run build and npm run test:e2e before delivery.
+- Tests must isolate their data; never run test resets against live Supabase.
+- Do not push, publish or deploy until the user confirms repository and account.
